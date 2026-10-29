@@ -76,7 +76,7 @@ Things to know:
 
 ## Advanced customizations
 
-There are more settings on the generated `Client` class which let you control more runtime behavior, check out the docstring on that class for more info. You can also customize the underlying `httpx.Client` or `httpx.AsyncClient` (depending on your use-case):
+There are more settings on the generated `Client` class which let you control more runtime behavior, check out the docstring on that class for more info. You can also customize the underlying `httpx2.Client` or `httpx2.AsyncClient` (depending on your use-case):
 
 ```python
 from test_3_1_features_client import Client
@@ -106,7 +106,7 @@ client = Client(
     base_url="https://api.example.com",
 )
 # Note that base_url needs to be re-set, as would any shared cookies, headers, etc.
-client.set_httpx_client(httpx.Client(base_url="https://api.example.com", proxies="http://localhost:8030"))
+client.set_httpx_client(httpx.Client(base_url="https://api.example.com", proxy="http://localhost:8030"))
 ```
 
 ## Building / publishing this package

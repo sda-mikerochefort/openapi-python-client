@@ -14,7 +14,7 @@ class Unset:
 
 UNSET: Unset = Unset()
 
-# The types that `httpx.Client(files=)` can accept, copied from that library.
+# The types that `httpx2.Client(files=)` can accept, copied from that library.
 FileContent = IO[bytes] | bytes | str
 FileTypes = (
     # (filename, file (or bytes), content_type)

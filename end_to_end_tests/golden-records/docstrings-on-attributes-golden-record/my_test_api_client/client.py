@@ -18,14 +18,14 @@ class Client:
         ``headers``: A dictionary of headers to be sent with every request
 
         ``timeout``: The maximum amount of a time a request can take. API functions will raise
-        httpx.TimeoutException if this is exceeded.
+        httpx2.TimeoutException if this is exceeded.
 
         ``verify_ssl``: Whether or not to verify the SSL certificate of the API server. This should be True in production,
         but can be set to False for testing purposes.
 
         ``follow_redirects``: Whether or not to follow redirects. Default value is False.
 
-        ``httpx_args``: A dictionary of additional arguments to be passed to the ``httpx.Client`` and ``httpx.AsyncClient`` constructor.
+        ``httpx_args``: A dictionary of additional arguments to be passed to the ``httpx2.Client`` and ``httpx2.AsyncClient`` constructor.
 
     """
 
@@ -66,7 +66,7 @@ class Client:
         return evolve(self, timeout=timeout)
 
     def set_httpx_client(self, client: httpx.Client) -> Self:
-        """Manually set the underlying httpx.Client
+        """Manually set the underlying httpx2.Client
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
         """
@@ -74,7 +74,7 @@ class Client:
         return self
 
     def get_httpx_client(self) -> httpx.Client:
-        """Get the underlying httpx.Client, constructing a new one if not previously set"""
+        """Get the underlying httpx2.Client, constructing a new one if not previously set"""
         if self._client is None:
             self._client = httpx.Client(
                 base_url=self._base_url,
@@ -93,11 +93,11 @@ class Client:
         return self
 
     def __exit__(self, *args: Any, **kwargs: Any) -> None:
-        """Exit a context manager for internal httpx.Client (see httpx docs)"""
+        """Exit a context manager for internal httpx2.Client (see httpx docs)"""
         self.get_httpx_client().__exit__(*args, **kwargs)
 
     def set_async_httpx_client(self, async_client: httpx.AsyncClient) -> Self:
-        """Manually set the underlying httpx.AsyncClient
+        """Manually set the underlying httpx2.AsyncClient
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
         """
@@ -105,7 +105,7 @@ class Client:
         return self
 
     def get_async_httpx_client(self) -> httpx.AsyncClient:
-        """Get the underlying httpx.AsyncClient, constructing a new one if not previously set"""
+        """Get the underlying httpx2.AsyncClient, constructing a new one if not previously set"""
         if self._async_client is None:
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
@@ -119,12 +119,12 @@ class Client:
         return self._async_client
 
     async def __aenter__(self) -> Self:
-        """Enter a context manager for underlying httpx.AsyncClient—you cannot enter twice (see httpx docs)"""
+        """Enter a context manager for underlying httpx2.AsyncClient—you cannot enter twice (see httpx docs)"""
         await self.get_async_httpx_client().__aenter__()
         return self
 
     async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
-        """Exit a context manager for underlying httpx.AsyncClient (see httpx docs)"""
+        """Exit a context manager for underlying httpx2.AsyncClient (see httpx docs)"""
         await self.get_async_httpx_client().__aexit__(*args, **kwargs)
 
 
@@ -141,14 +141,14 @@ class AuthenticatedClient:
         ``headers``: A dictionary of headers to be sent with every request
 
         ``timeout``: The maximum amount of a time a request can take. API functions will raise
-        httpx.TimeoutException if this is exceeded.
+        httpx2.TimeoutException if this is exceeded.
 
         ``verify_ssl``: Whether or not to verify the SSL certificate of the API server. This should be True in production,
         but can be set to False for testing purposes.
 
         ``follow_redirects``: Whether or not to follow redirects. Default value is False.
 
-        ``httpx_args``: A dictionary of additional arguments to be passed to the ``httpx.Client`` and ``httpx.AsyncClient`` constructor.
+        ``httpx_args``: A dictionary of additional arguments to be passed to the ``httpx2.Client`` and ``httpx2.AsyncClient`` constructor.
 
     """
 
@@ -196,7 +196,7 @@ class AuthenticatedClient:
         return evolve(self, timeout=timeout)
 
     def set_httpx_client(self, client: httpx.Client) -> Self:
-        """Manually set the underlying httpx.Client
+        """Manually set the underlying httpx2.Client
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
         """
@@ -204,7 +204,7 @@ class AuthenticatedClient:
         return self
 
     def get_httpx_client(self) -> httpx.Client:
-        """Get the underlying httpx.Client, constructing a new one if not previously set"""
+        """Get the underlying httpx2.Client, constructing a new one if not previously set"""
         if self._client is None:
             self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
             self._client = httpx.Client(
@@ -224,11 +224,11 @@ class AuthenticatedClient:
         return self
 
     def __exit__(self, *args: Any, **kwargs: Any) -> None:
-        """Exit a context manager for internal httpx.Client (see httpx docs)"""
+        """Exit a context manager for internal httpx2.Client (see httpx docs)"""
         self.get_httpx_client().__exit__(*args, **kwargs)
 
     def set_async_httpx_client(self, async_client: httpx.AsyncClient) -> Self:
-        """Manually set the underlying httpx.AsyncClient
+        """Manually set the underlying httpx2.AsyncClient
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
         """
@@ -236,7 +236,7 @@ class AuthenticatedClient:
         return self
 
     def get_async_httpx_client(self) -> httpx.AsyncClient:
-        """Get the underlying httpx.AsyncClient, constructing a new one if not previously set"""
+        """Get the underlying httpx2.AsyncClient, constructing a new one if not previously set"""
         if self._async_client is None:
             self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
             self._async_client = httpx.AsyncClient(
@@ -251,10 +251,10 @@ class AuthenticatedClient:
         return self._async_client
 
     async def __aenter__(self) -> Self:
-        """Enter a context manager for underlying httpx.AsyncClient—you cannot enter twice (see httpx docs)"""
+        """Enter a context manager for underlying httpx2.AsyncClient—you cannot enter twice (see httpx docs)"""
         await self.get_async_httpx_client().__aenter__()
         return self
 
     async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
-        """Exit a context manager for underlying httpx.AsyncClient (see httpx docs)"""
+        """Exit a context manager for underlying httpx2.AsyncClient (see httpx docs)"""
         await self.get_async_httpx_client().__aexit__(*args, **kwargs)
