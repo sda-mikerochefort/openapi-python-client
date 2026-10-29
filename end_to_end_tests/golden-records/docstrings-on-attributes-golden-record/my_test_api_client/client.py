@@ -1,8 +1,18 @@
+import os
 import ssl
 from typing import Any, Self
 
 import httpx2 as httpx
 from attrs import define, evolve, field
+
+
+def _ssl_context(verify_ssl: str | bool | ssl.SSLContext) -> bool | ssl.SSLContext:
+    """httpx2 deprecates ``verify=<path>``, so build the same ``ssl.SSLContext`` it would have built."""
+    if not isinstance(verify_ssl, str):
+        return verify_ssl
+    if os.path.isdir(verify_ssl):
+        return ssl.create_default_context(capath=verify_ssl)
+    return ssl.create_default_context(cafile=verify_ssl)
 
 
 @define
@@ -21,7 +31,8 @@ class Client:
         httpx2.TimeoutException if this is exceeded.
 
         ``verify_ssl``: Whether or not to verify the SSL certificate of the API server. This should be True in production,
-        but can be set to False for testing purposes.
+        but can be set to False for testing purposes. Can also be an ``ssl.SSLContext``, or the path to a CA bundle file
+        or directory.
 
         ``follow_redirects``: Whether or not to follow redirects. Default value is False.
 
@@ -81,7 +92,7 @@ class Client:
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
-                verify=self._verify_ssl,
+                verify=_ssl_context(self._verify_ssl),
                 follow_redirects=self._follow_redirects,
                 **self._httpx_args,
             )
@@ -112,7 +123,7 @@ class Client:
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
-                verify=self._verify_ssl,
+                verify=_ssl_context(self._verify_ssl),
                 follow_redirects=self._follow_redirects,
                 **self._httpx_args,
             )
@@ -144,7 +155,8 @@ class AuthenticatedClient:
         httpx2.TimeoutException if this is exceeded.
 
         ``verify_ssl``: Whether or not to verify the SSL certificate of the API server. This should be True in production,
-        but can be set to False for testing purposes.
+        but can be set to False for testing purposes. Can also be an ``ssl.SSLContext``, or the path to a CA bundle file
+        or directory.
 
         ``follow_redirects``: Whether or not to follow redirects. Default value is False.
 
@@ -212,7 +224,7 @@ class AuthenticatedClient:
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
-                verify=self._verify_ssl,
+                verify=_ssl_context(self._verify_ssl),
                 follow_redirects=self._follow_redirects,
                 **self._httpx_args,
             )
@@ -244,7 +256,7 @@ class AuthenticatedClient:
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
-                verify=self._verify_ssl,
+                verify=_ssl_context(self._verify_ssl),
                 follow_redirects=self._follow_redirects,
                 **self._httpx_args,
             )

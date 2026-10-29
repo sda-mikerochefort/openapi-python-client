@@ -99,9 +99,9 @@ def sync_detailed(
         cookie_param=cookie_param,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    # Per-request cookies are deprecated in `request()`; `build_request()` + `send()` is its documented equivalent.
+    httpx_client = client.get_httpx_client()
+    response = httpx_client.send(httpx_client.build_request(**kwargs))
 
     return _build_response(client=client, response=response)
 
@@ -140,6 +140,8 @@ async def asyncio_detailed(
         cookie_param=cookie_param,
     )
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    # Per-request cookies are deprecated in `request()`; `build_request()` + `send()` is its documented equivalent.
+    async_httpx_client = client.get_async_httpx_client()
+    response = await async_httpx_client.send(async_httpx_client.build_request(**kwargs))
 
     return _build_response(client=client, response=response)

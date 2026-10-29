@@ -362,7 +362,7 @@ def _get_document(*, source: str | Path, timeout: int) -> dict[str, Any] | Gener
             else:  # pragma: no cover
                 content_type = mimetypes.guess_type(source, strict=True)[0]
 
-        except (httpx.HTTPError, httpcore.NetworkError):
+        except (httpx.HTTPError, httpx.InvalidURL, httpcore.NetworkError, UnicodeError):
             return GeneratorError(header="Could not get OpenAPI document from provided URL")
     else:
         yaml_bytes = source.read_bytes()

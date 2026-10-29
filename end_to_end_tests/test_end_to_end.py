@@ -207,9 +207,17 @@ def test_custom_templates():
     )
 
 
-def test_bad_url():
+@pytest.mark.parametrize(
+    "url",
+    [
+        "not_a_url",
+        "http://[::1/openapi.json",  # httpx2.InvalidURL
+        "http://example..com/openapi.json",  # UnicodeError from IDNA encoding
+    ],
+)
+def test_bad_url(url: str):
     runner = CliRunner()
-    result = runner.invoke(app, ["generate", "--url=not_a_url"])
+    result = runner.invoke(app, ["generate", f"--url={url}"])
     assert result.exit_code == 1
     assert "Could not get OpenAPI document from provided URL" in result.stderr
 
