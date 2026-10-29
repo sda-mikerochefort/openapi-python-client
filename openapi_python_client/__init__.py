@@ -10,8 +10,8 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any
 
-import httpcore
-import httpx
+import httpcore2 as httpcore
+import httpx2 as httpx
 from jinja2 import BaseLoader, ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
