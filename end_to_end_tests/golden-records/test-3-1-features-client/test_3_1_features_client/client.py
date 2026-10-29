@@ -1,5 +1,6 @@
 import os
 import ssl
+from types import TracebackType
 from typing import Any, Self
 
 import httpx2 as httpx
@@ -107,9 +108,14 @@ class Client:
         self.get_httpx_client().__enter__()
         return self
 
-    def __exit__(self, *args: Any, **kwargs: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None:
         """Exit a context manager for internal httpx2.Client (see httpx docs)"""
-        self.get_httpx_client().__exit__(*args, **kwargs)
+        self.get_httpx_client().__exit__(exc_type, exc_value, traceback)
 
     def set_async_httpx_client(self, async_client: httpx.AsyncClient) -> Self:
         """Manually set the underlying httpx2.AsyncClient
@@ -138,9 +144,14 @@ class Client:
         await self.get_async_httpx_client().__aenter__()
         return self
 
-    async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None:
         """Exit a context manager for underlying httpx2.AsyncClient (see httpx docs)"""
-        await self.get_async_httpx_client().__aexit__(*args, **kwargs)
+        await self.get_async_httpx_client().__aexit__(exc_type, exc_value, traceback)
 
 
 @define
@@ -243,9 +254,14 @@ class AuthenticatedClient:
         self.get_httpx_client().__enter__()
         return self
 
-    def __exit__(self, *args: Any, **kwargs: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None:
         """Exit a context manager for internal httpx2.Client (see httpx docs)"""
-        self.get_httpx_client().__exit__(*args, **kwargs)
+        self.get_httpx_client().__exit__(exc_type, exc_value, traceback)
 
     def set_async_httpx_client(self, async_client: httpx.AsyncClient) -> Self:
         """Manually set the underlying httpx2.AsyncClient
@@ -275,6 +291,11 @@ class AuthenticatedClient:
         await self.get_async_httpx_client().__aenter__()
         return self
 
-    async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None:
         """Exit a context manager for underlying httpx2.AsyncClient (see httpx docs)"""
-        await self.get_async_httpx_client().__aexit__(*args, **kwargs)
+        await self.get_async_httpx_client().__aexit__(exc_type, exc_value, traceback)

@@ -58,8 +58,8 @@ You can also disable certificate validation altogether, but beware that **this i
 ```python
 client = AuthenticatedClient(
     base_url="https://internal_api.example.com",
-    token="SuperSecretToken", 
-    verify_ssl=False
+    token="SuperSecretToken",
+    verify_ssl=False,
 )
 ```
 
@@ -81,12 +81,15 @@ There are more settings on the generated `Client` class which let you control mo
 ```python
 from escapes_client import Client
 
+
 def log_request(request):
     print(f"Request event hook: {request.method} {request.url} - Waiting for response")
+
 
 def log_response(response):
     request = response.request
     print(f"Response event hook: {request.method} {request.url} - Status {response.status_code}")
+
 
 client = Client(
     base_url="https://api.example.com",
