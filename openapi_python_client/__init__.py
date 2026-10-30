@@ -10,7 +10,6 @@ from pathlib import Path
 from subprocess import CalledProcessError
 from typing import Any
 
-import httpcore2 as httpcore
 import httpx2 as httpx
 from jinja2 import BaseLoader, ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from ruamel.yaml import YAML
@@ -362,7 +361,7 @@ def _get_document(*, source: str | Path, timeout: int) -> dict[str, Any] | Gener
             else:  # pragma: no cover
                 content_type = mimetypes.guess_type(source, strict=True)[0]
 
-        except (httpx.HTTPError, httpx.InvalidURL, httpcore.NetworkError, UnicodeError):
+        except (httpx.HTTPError, httpx.InvalidURL, UnicodeError):
             return GeneratorError(header="Could not get OpenAPI document from provided URL")
     else:
         yaml_bytes = source.read_bytes()
