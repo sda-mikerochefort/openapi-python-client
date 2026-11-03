@@ -255,6 +255,66 @@ class TestProcessModels:
         # Verify that Model3 extended the properties from Model1
         assert [p.name for p in result.classes_by_name["Model3"].optional_properties] == ["prop1", "prop2"]
 
+    def test_union_of_inline_models_with_nested_inline_models(self, config):
+        # Inline variants must only be processed in the second pass, or their nested models are generated twice
+        components = {
+            UntrustedString("Log"): oai.Schema.model_construct(
+                oneOf=[
+                    oai.Schema.model_construct(
+                        type="object",
+                        properties={
+                            UntrustedString("metadata"): oai.Schema.model_construct(
+                                type="object",
+                                properties={
+                                    UntrustedString("data"): oai.Reference.model_construct(
+                                        ref=Ref("#/components/schemas/Data")
+                                    ),
+                                },
+                            ),
+                        },
+                    ),
+                    oai.Schema.model_construct(type="string"),
+                ]
+            ),
+            UntrustedString("Data"): oai.Schema.model_construct(
+                type="object",
+                properties={UntrustedString("value"): oai.Schema.model_construct(type="string")},
+            ),
+        }
+
+        result = build_schemas(components=components, schemas=Schemas(), config=config)
+
+        assert result.errors == []
+        assert result.models_to_process == []
+        assert result.classes_by_name.keys() == {"LogType0", "LogType0Metadata", "Data"}
+        variant = result.classes_by_name[ClassName("LogType0", prefix="")]
+        assert [p.name for p in variant.optional_properties] == ["metadata"]
+        metadata = result.classes_by_name[ClassName("LogType0Metadata", prefix="")]
+        assert [p.name for p in metadata.optional_properties] == ["data"]
+
+    def test_union_removed_when_inline_variant_fails(self, config):
+        components = {
+            UntrustedString("Log"): oai.Schema.model_construct(
+                oneOf=[
+                    oai.Schema.model_construct(
+                        type="object",
+                        properties={
+                            UntrustedString("bad"): oai.Reference.model_construct(
+                                ref=Ref("#/components/schemas/DoesntExist")
+                            ),
+                        },
+                    ),
+                    oai.Schema.model_construct(type="string"),
+                ]
+            ),
+        }
+
+        result = build_schemas(components=components, schemas=Schemas(), config=config)
+
+        assert len(result.errors) == 1
+        assert result.classes_by_name == {}
+        assert ReferencePath(UntrustedString("/components/schemas/Log")) not in result.classes_by_reference
+
 
 class TestPropogateRemoval:
     def test_propogate_removal_class_name(self):
