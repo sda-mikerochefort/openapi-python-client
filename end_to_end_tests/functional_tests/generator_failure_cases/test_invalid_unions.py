@@ -15,6 +15,19 @@ components:
       anyOf:
         - type: string
         - type: array  # invalid because no items
+    UnionWithInvalidInlineVariant:
+      oneOf:
+        - type: object
+          properties:
+            inner:
+              type: object
+              properties:
+                invalidRef: {"$ref": "#/components/schemas/DoesntExist"}
+        - type: string
+    ModelWithInvalidUnion:
+      type: object
+      properties:
+        union: {"$ref": "#/components/schemas/UnionWithInvalidInlineVariant"}
 """
 )
 class TestUnionInvalidSchemas:
@@ -26,3 +39,11 @@ class TestUnionInvalidSchemas:
 
     def test_invalid_property(self, generated_client):
         assert_bad_schema(generated_client, "UnionWithMalformedVariant", "Invalid property in union")
+
+    def test_invalid_inline_variant(self, generated_client):
+        # The union, and anything using it, is removed along with the invalid variant
+        assert_bad_schema(
+            generated_client,
+            "UnionWithInvalidInlineVariant_type_0",
+            "removal of:\n/components/schemas/UnionWithInvalidInlineVariant\n/components/schemas/ModelWithInvalidUnion",
+        )

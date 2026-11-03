@@ -1,7 +1,12 @@
+from unittest.mock import MagicMock
+
+import httpx
+
 from end_to_end_tests.functional_tests.helpers import (
     assert_model_decode_encode,
     assert_model_property_type_hint,
     with_generated_client_fixture,
+    with_generated_code_import,
     with_generated_code_imports,
 )
 
@@ -141,3 +146,94 @@ class TestOneOf:
         )
         assert_model_property_type_hint(ModelWithUnionOfOne, "thing", "ThingA | Unset")
         assert_model_property_type_hint(ModelWithUnionOfOne, "required_thing", "ThingA")
+
+
+@with_generated_client_fixture(
+    """
+paths:
+  "/thing":
+    get:
+      operationId: getThing
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InlineThingAOrB"
+components:
+  schemas:
+    InlineThingAOrB:
+      oneOf:
+        - type: object
+          properties:
+            propA:
+              type: object
+              properties:
+                value: {"$ref": "#/components/schemas/Value"}
+          required: ["propA"]
+        - type: object
+          properties:
+            propB:
+              type: object
+              properties:
+                inner:
+                  type: object
+                  properties:
+                    value: {"$ref": "#/components/schemas/Value"}
+          required: ["propB"]
+    Value:
+      type: object
+      properties:
+        x: {"type": "string"}
+"""
+)
+@with_generated_code_imports(
+    ".models.InlineThingAOrBType0",
+    ".models.InlineThingAOrBType0PropA",
+    ".models.InlineThingAOrBType1",
+    ".models.InlineThingAOrBType1PropB",
+    ".models.InlineThingAOrBType1PropBInner",
+    ".models.Value",
+)
+@with_generated_code_import(".api.default.get_thing.sync")
+@with_generated_code_import(".client.Client")
+class TestOneOfInlineObjectsWithInlineObjects:
+    def test_decode_encode(
+        self,
+        InlineThingAOrBType0,
+        InlineThingAOrBType0PropA,
+        InlineThingAOrBType1,
+        InlineThingAOrBType1PropB,
+        InlineThingAOrBType1PropBInner,
+        Value,
+    ):
+        assert_model_decode_encode(
+            InlineThingAOrBType0,
+            {"propA": {"value": {"x": "a"}}},
+            InlineThingAOrBType0(prop_a=InlineThingAOrBType0PropA(value=Value(x="a"))),
+        )
+        assert_model_decode_encode(
+            InlineThingAOrBType1,
+            {"propB": {"inner": {"value": {"x": "b"}}}},
+            InlineThingAOrBType1(
+                prop_b=InlineThingAOrBType1PropB(inner=InlineThingAOrBType1PropBInner(value=Value(x="b")))
+            ),
+        )
+
+    def test_disambiguate_response(self, sync, Client, InlineThingAOrBType1):
+        mock_httpx_client = MagicMock(spec=httpx.Client)
+        mock_response = MagicMock(spec=httpx.Response)
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"propB": {"inner": {"value": {"x": "b"}}}}
+        mock_response.content = b'{"propB": {"inner": {"value": {"x": "b"}}}}'
+        mock_response.headers = {}
+        mock_httpx_client.request.return_value = mock_response
+
+        client = Client(base_url="https://api.example.com")
+        client.set_httpx_client(mock_httpx_client)
+
+        result = sync(client=client)
+
+        assert isinstance(result, InlineThingAOrBType1)
+        assert result.prop_b.inner.value.x == "b"
